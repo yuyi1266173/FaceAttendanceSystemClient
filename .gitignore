@@ -1,0 +1,11 @@
+venv/
+.idea/
+resource/face_image/*.png
+resource/face_image/*.jpg
+src/*.db
+src/*.log
+src/view/__pycache__/
+src/protoc/__pycache__/
+src/__pycache__/
+src/video_utils/__pycache__/
+src/*.png

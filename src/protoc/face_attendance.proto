@@ -1,0 +1,29 @@
+syntax = "proto3";
+package face_attendance;
+
+service DetectFace {
+  rpc DoDetectFace(DetectFaceRequest) returns (DetectFaceResponse){}
+}
+
+
+message Image{
+    bytes raw_data = 1;  //实时图片（raw_data）
+    int32 width = 2;  //raw_data：宽
+    int32 high = 3; //raw_data：高
+    int32 channel = 4; //raw_data：通道（3）
+}
+
+message Info{
+   int32 staff_id = 1; //对输入图片进行识别的结果，返回对应的staff_id， 如果未识别成功(人未注册，或遮盖严重等)， 则返回-1
+    Image image = 2;    //返回一张采集到的员工的人脸图像
+    string time_stamp = 3; //时间戳
+}
+
+message DetectFaceRequest {
+     int32 state = 1;
+    }
+
+
+message DetectFaceResponse{
+     repeated Info info = 1; //该段时间内的检测结果
+    }
