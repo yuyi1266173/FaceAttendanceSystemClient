@@ -33,10 +33,10 @@ def start_collect_face(staff_id):
 
     response = client.DoCollectFace(collect_face_pb2.CollectFaceRequest(staff_id=staff_id))
 
-    print("received.staff_id:{} ".format(str(response.staff_id)))
-    print("received.width:{} ".format(str(response.image.width)))
-    print("received.high:{} ".format(str(response.image.high)))
-    print("received.channel:{} ".format(str(response.image.channel)))
+    # print("received.staff_id:{} ".format(str(response.staff_id)))
+    # print("received.width:{} ".format(str(response.image.width)))
+    # print("received.high:{} ".format(str(response.image.high)))
+    # print("received.channel:{} ".format(str(response.image.channel)))
 
     image_path = os.path.abspath("../resource/face_image/{}.jpg".format(staff_id))
     print(image_path)

@@ -9,6 +9,8 @@ from video_utils.video_player import VlcPlayer
 
 from view.collect_info_dialog import CollectInfoDialog
 from view.confirm_dialog import ConfirmDialog
+from model import Staff
+from protoc.grpc_face_attendance_client import start_face_attendance
 
 
 class AttendancePageWidget(QWidget):
@@ -88,10 +90,38 @@ class AttendancePageWidget(QWidget):
         self.collect_info_button.clicked.connect(self.collect_info__fun)
 
     def start_button_fun(self):
+        time_stamp = time.time()
+        # TODO: 调用gRPC考勤接口获取数据
+        try:
+            test_staff_no, the_image_url = start_face_attendance()
+            print("test_staff_no={}, the_image_url={}".format(test_staff_no, the_image_url))
+        except Exception as e:
+            print("调用gRPC考勤接口异常:{}".format(e))
+            test_staff_no = None
+
+        print("attendance use time : {}".format(time.time() - time_stamp))
+        print("test_staff_no={}".format(test_staff_no))
+
+        # test_staff_no = 44444444
+        if test_staff_no is not None:
+            the_staffs = Staff.get_staff_by_no(staff_no=test_staff_no)
+        else:
+            the_staffs = None
+
+        if the_staffs is None or len(the_staffs) < 1:
+            attendance_fail_flag = True
+            the_staff_name = ""
+            the_image_url = None
+        else:
+            attendance_fail_flag = False
+            the_staff_name = the_staffs[0].name
+            # the_image_url = "E://py_projects/FaceAttendanceSystemClient/resource/face_image/{}.jpg"
+
         if self.confirm_dialog is None:
             self.confirm_dialog = ConfirmDialog()
-        self.confirm_dialog.set_dialog_info(use_type=0, staff_no=1011, staff_name="wuyu",
-                                            image_url="E://py_projects/FaceAttendanceSystemClient/src/rose_logo.png")
+        self.confirm_dialog.set_dialog_info(use_type=0, staff_no=test_staff_no, staff_name=the_staff_name,
+                                            image_url=the_image_url,
+                                            fail_flag=attendance_fail_flag, time_stamp=time_stamp)
         self.confirm_dialog.show()
 
     def collect_info__fun(self):

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.6
 # -*- coding: utf-8 -*-
+
 import ctypes
 import sys
 import time
@@ -14,7 +15,6 @@ from vlc import (
     libvlc_media_new_path,
     libvlc_video_take_snapshot
 )
-
 
 
 # VIDEO_WIDTH, VIDEO_HEIGHT = common_lib.get_video_size()
@@ -77,8 +77,8 @@ from vlc import (
 #
 #     def is_playing(self):
 #         return self.pl.is_playing()
-#
-#
+
+
 class VlcPlayer(object):
 
     def __init__(self, url, winId):

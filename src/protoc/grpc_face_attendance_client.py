@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
+
+import os
 import grpc
 import numpy as np
 import cv2,base64
@@ -42,13 +44,34 @@ def base64_2_cv2(encoded_data):
     return ret
 
 
-def run():
+def start_face_attendance():
     conn = grpc.insecure_channel(_HOST + ':' + _PORT)
     client = face_attendance_pb2_grpc.DetectFaceStub(channel=conn)
     response = client.DoDetectFace(face_attendance_pb2.DetectFaceRequest(state=0))
+    print("---", response)
 
-    print("response:{}".format((response.info)))
+    # print("response:{}".format(response.info))
+    print(type(response.info), len(response.info))
+
+    if len(response.info) == 0:
+        return None, None
+
+    print(response.info[0].staff_id)
+
+    image_path = os.path.abspath("../resource/attendance_image/{}.jpg".format(response.info[0].staff_id))
+    print(image_path)
+
+    if os.path.exists(image_path):
+        os.remove(image_path)
+
+    with open(image_path, 'wb') as f:
+        f.write(response.info[0].image.raw_data)
+
+    return response.info[0].staff_id, image_path
 
 
 if __name__ == '__main__':
-    run()
+    os.chdir("../")
+    print(os.getcwd())
+
+    start_face_attendance()

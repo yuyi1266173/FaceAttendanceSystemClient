@@ -60,13 +60,13 @@ class ConfirmDialog(QDialog):
         self.setLayout(main_layout)
 
     def set_widgets(self):
-        self.top_label.setText("打卡成功！")
-        self.staff_no_label.setText("工号：{}".format(1011))
-        self.staff_name_label.setText("姓名：{}".format("吴宇"))
-        time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
-        self.time_label.setText("打卡时间: {}".format(time_str))
-        pix = QPixmap("E://py_projects/FaceAttendanceSystemClient/resource/face_image/35289.jpg").scaled(80, 100)
-        self.image_label.setPixmap(pix)
+        # self.top_label.setText("打卡成功！")
+        # self.staff_no_label.setText("工号：{}".format(1011))
+        # self.staff_name_label.setText("姓名：{}".format("吴宇"))
+        # time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+        # self.time_label.setText("打卡时间: {}".format(time_str))
+        # pix = QPixmap("E://py_projects/FaceAttendanceSystemClient/resource/face_image/35289.jpg").scaled(80, 100)
+        # self.image_label.setPixmap(pix)
 
         self.setFixedSize(400, 500)
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -75,10 +75,17 @@ class ConfirmDialog(QDialog):
     def connect_events(self):
         self.confirm_button.clicked.connect(self.close)
 
-    def set_dialog_info(self, use_type, staff_no, staff_name, image_url):
+    def set_dialog_info(self, use_type, staff_no, staff_name, image_url=None, fail_flag=False, time_stamp=None):
         if use_type == 0:
-            self.top_label.setText("打卡成功！")
-            time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+            if fail_flag is True:
+                self.top_label.setText("系统超时，请重新打卡！")
+                time_str = ""
+                staff_no = ""
+                staff_name = ""
+                image_url = None
+            else:
+                self.top_label.setText("打卡成功！")
+                time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time_stamp))
             self.time_label.setText("打卡时间: {}".format(time_str))
         else:
             self.top_label.setText("人脸采集成功！")
@@ -86,6 +93,7 @@ class ConfirmDialog(QDialog):
 
         self.staff_no_label.setText("工号：{}".format(staff_no))
         self.staff_name_label.setText("姓名：{}".format(staff_name))
+
         pix = QPixmap(image_url).scaled(80, 100)
         self.image_label.setPixmap(pix)
 
