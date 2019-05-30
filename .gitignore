@@ -2,6 +2,7 @@ venv/
 .idea/
 resource/face_image/*.png
 resource/face_image/*.jpg
+resource/attendance_image/*.jpg
 src/*.db
 src/*.log
 src/view/__pycache__/

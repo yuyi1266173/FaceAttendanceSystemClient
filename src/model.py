@@ -69,6 +69,21 @@ class Staff(Base):
     is_delete = Column(Boolean, default=False)
 
     @staticmethod
+    def get_staff_by_no(staff_no):
+        ret = None
+        session = db_session()
+
+        try:
+            staffs = session.query(Staff).filter_by(staff_no=staff_no, is_delete=False).all()
+        except Exception as e:
+            LOG.error("add_staff error: {}".format(e))
+            return ret
+
+        print(staffs, type(staffs))
+        ret = staffs
+        return ret
+
+    @staticmethod
     def add_staff(staff_no, name, **kwargs):
         session = db_session()
 
@@ -213,5 +228,6 @@ if __name__ == "__main__":
     # os.chdir("../../")
     print(os.getcwd())
     init_data_database()
-    add_staff_fun_test()
+    # add_staff_fun_test()
+    print(Staff.get_staff_by_no(1011)[0].is_collect_face_image)
 

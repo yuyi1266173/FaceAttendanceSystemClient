@@ -5,9 +5,10 @@ import time
 from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QFormLayout, QLineEdit
 from PyQt5.QtCore import Qt
 
+from config import LOG
 from model import Staff, init_data_database
 from view.confirm_dialog import ConfirmDialog
-from src.protoc.grpc_collect_face_client import start_collect_face
+from protoc.grpc_collect_face_client import start_collect_face
 
 
 class CollectInfoDialog(QDialog):
@@ -69,8 +70,10 @@ class CollectInfoDialog(QDialog):
 
     def connect_events(self):
         self.start_collect_button.clicked.connect(self.start_collect_fun)
-        self.staff_no_edit.textEdited.connect(self.clear_tip_info)
-        self.staff_name_edit.textEdited.connect(self.clear_tip_info)
+        # self.staff_no_edit.textEdited.connect(self.clear_tip_info)
+        # self.staff_name_edit.textEdited.connect(self.clear_tip_info)
+        self.staff_no_edit.selectionChanged.connect(self.clear_tip_info)
+        self.staff_name_edit.selectionChanged.connect(self.clear_tip_info)
 
     def start_collect_fun(self):
         print(self.staff_no_edit.text(), self.staff_name_edit.text())
@@ -86,13 +89,28 @@ class CollectInfoDialog(QDialog):
             self.tip_label.setText("请输入员工姓名！")
             return
 
-        staff_id, err_str = Staff.add_staff(staff_no=int(staff_no), name=staff_name)
+        the_staff = Staff.get_staff_by_no(staff_no)
+        if the_staff is None or len(the_staff) == 0:
+            staff_id, err_str = Staff.add_staff(staff_no=int(staff_no), name=staff_name)
 
-        if err_str is not None:
-            self.tip_label.setText(err_str)
+            if err_str is not None:
+                self.tip_label.setText(err_str)
+                return
+        else:
+            if len(the_staff) != 1:
+                self.tip_label.setText("异常：数据库中已存在{}个工号为{}的员工".format(len(the_staff), staff_no))
+                return
+            elif the_staff[0].is_collect_face_image is True:
+                self.tip_label.setText("异常：数据库中已存在{}个工号为{}的员工(已采集完人脸数据)".
+                                       format(len(the_staff), staff_no))
+                return
+
+        try:
+            face_image_path = start_collect_face(int(staff_no))
+        except Exception as e:
+            LOG.error("采集人脸异常：{}".format(e))
+            self.tip_label.setText("采集人脸异常：连接服务器错误。")
             return
-
-        face_image_path = start_collect_face(int(staff_no))
 
         self.staff_no_edit.setText("")
         self.staff_name_edit.setText("")
@@ -105,6 +123,11 @@ class CollectInfoDialog(QDialog):
         self.confirm_dialog.set_dialog_info(use_type=1, staff_no=staff_no, staff_name=staff_name,
                                             image_url=face_image_path)
         self.confirm_dialog.show()
+
+        try:
+            Staff.update_is_collect_face_image(staff_no=staff_no, is_collect_face_image=True)
+        except Exception as e:
+            LOG.error("update_is_collect_face_image Error:{}".format(e))
 
     def clear_tip_info(self):
         self.tip_label.setText("")
